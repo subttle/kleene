@@ -13,7 +13,6 @@ open import Function using (_∘_)
 -- https://www.cs.cornell.edu/~kozen/Papers/ka.pdf
 -- "Unlike Salomaa's axiomatizations, the axiomatization given here is sound for all
 -- interpretations over Kleene algebras."
--- Section 2 (Pg 5)
 record Kleene : Set where
   constructor kleene
   field 0ₖ   : A
@@ -31,34 +30,38 @@ record Kleene : Set where
   infixl 8  _+_
   infixl 9  _∙_
   infixl 10 _*
-  field -- Kozen axioms
-        [3]  : ∀ {a b c : A} → (a + (b + c)) ≡ ((a + b) + c)
-        [4]  : ∀ {a b   : A} →         a + b ≡ b + a
-        [5]  : ∀ {a     : A} →        a + 0ₖ ≡ a
-        [6]  : ∀ {a     : A} →         a + a ≡ a
-        [7]  : ∀ {a b c : A} → (a ∙ (b ∙ c)) ≡ ((a ∙ b) ∙ c)
-        [8]  : ∀ {a     : A} →        a ∙ 1ₖ ≡ a
-        [9]  : ∀ {a     : A} →        1ₖ ∙ a ≡ a
-        [10] : ∀ {a b c : A} → (a ∙ (b + c)) ≡ ((a ∙ b) + (a ∙ c))
-        [11] : ∀ {a b c : A} → ((a + b) ∙ c) ≡ ((a ∙ c) + (b ∙ c))
-        [12] : ∀ {a     : A} →        0ₖ ∙ a ≡ 0ₖ
-        [13] : ∀ {a     : A} →        a ∙ 0ₖ ≡ 0ₖ
-        [14] : ∀ {a     : A} → (1ₖ + (a ∙ (a *))) ≤ (a *)
-        [15] : ∀ {a     : A} → (1ₖ + ((a *) ∙ a)) ≤ (a *)
+  field -- Kozen axioms, see § 2 Axioms for Kleene Algebra (Pg 5)
+        [3]  : ∀ {a b c : A} →  a + (b  + c) ≡ (a + b) + c
+        [4]  : ∀ {a b   : A} →       a  + b  ≡  b + a
+        [5]  : ∀ {a     : A} →       a  + 0ₖ ≡  a
+        [6]  : ∀ {a     : A} →       a  + a  ≡  a
+        [7]  : ∀ {a b c : A} →  a ∙ (b  ∙ c) ≡ (a ∙ b) ∙ c
+        [8]  : ∀ {a     : A} →       a  ∙ 1ₖ ≡  a
+        [9]  : ∀ {a     : A} →       1ₖ ∙ a  ≡  a
+        [10] : ∀ {a b c : A} →  a ∙ (b  + c) ≡ (a ∙ b) + (a ∙ c)
+        [11] : ∀ {a b c : A} → (a +  b) ∙ c  ≡ (a ∙ c) + (b ∙ c)
+        [12] : ∀ {a     : A} →       0ₖ ∙ a  ≡  0ₖ
+        [13] : ∀ {a     : A} →       a  ∙ 0ₖ ≡  0ₖ
+        [14] : ∀ {a     : A} → 1ₖ +  a    ∙ (a *) ≤ a *          -- left  unfold axiom
+        [15] : ∀ {a     : A} → 1ₖ + (a *) ∙  a    ≤ a *          -- right unfold axiom
 
-        -- "Axioms (16-19) are studied by Pratt [24], who attributes (16) and (17) to
-        -- Schröder and Dedekind. The equivalence of (16) and (18) (and, by symmetry,
-        -- of (17) and (19)) are proved in [24]."
-        -- [24] Vaughan Pratt Dynamic algebras as a well-behaved fragment of relation
+        -- "Axioms [16-19] are studied by Pratt (24), who attributes [16] and [17] to
+        -- Schröder and Dedekind. The equivalence of [16] and [18] (and, by symmetry,
+        -- of [17] and [19]) are proved in (24)."
+        -- (24) Vaughan Pratt Dynamic algebras as a well-behaved fragment of relation
         -- algebras In D Pigozzi, editor, Proc Conf on Algebra and Computer Science,
         -- Lect Notes in Comput Sci Springer-Verlag, June 1998
         --
         -- A Completeness Theorem for Kleene Algebras and the Algebra of Regular Events
         -- Dexter Kozen
-        [16] : ∀ {a b x : A} → ((b + (a ∙ x)) ≤ x) → (((a *) ∙ b) ≤ x)
-        [17] : ∀ {a b x : A} → ((b + (x ∙ a)) ≤ x) → (((a *) ∙ b) ≤ x)
-        [18] : ∀ {a   x : A} → (     (a ∙ x)  ≤ x) → (((a *) ∙ x) ≤ x)
-        [19] : ∀ {a   x : A} → (     (x ∙ a)  ≤ x) → ((x ∙ (a *)) ≤ x)
+        [16] : ∀ {a b x : A} → b + a ∙ x     ≤ x                 -- left  induction axiom
+                             → (a *) ∙ b     ≤ x
+        [17] : ∀ {a b x : A} → b + x ∙ a     ≤ x                 -- right induction axiom
+                             → (a *) ∙ b     ≤ x
+        [18] : ∀ {a   x : A} →     a ∙ x     ≤ x
+                             → (a *) ∙ x     ≤ x
+        [19] : ∀ {a   x : A} → x     ∙ a     ≤ x
+                             → x     ∙ (a *) ≤ x
 
   open import Relation.Binary.PropositionalEquality using (_≡_; refl; trans; sym; cong; cong-app; subst; cong₂)
   setoidₖ : Setoid zero zero
@@ -332,8 +335,9 @@ record Kleene : Set where
   ∙-mono-≡ : _∙_ Relation.Binary.Preserves₂ _≡_ ⟶ _≡_ ⟶ _≡_
   ∙-mono-≡ {a} {b} {c} {d} a≡b c≡d = ≡-substᵣ (∙-congʳ a≡b) (≡-substₗ (∙-congˡ (sym c≡d)) refl)
 
-  helper : ∀ {a b x : A} → (a ∙ x) ≤ (x ∙ b) → ((x + a ∙ x ∙ (b *)) ≤ (x + (x ∙ b ∙ (b *))))
-  helper {a} {b} {x} ax≤xb = (+-monoʳ-≤ x) (∙-monoˡ-≤ (b *) ax≤xb)
+  ax≤xb⇒x+axb*≤x+xbb* : ∀ {a b x : A} →     a ∙ x         ≤     x ∙ b
+                                      → x + a ∙ x ∙ (b *) ≤ x + x ∙ b ∙ (b *)
+  ax≤xb⇒x+axb*≤x+xbb* {a} {b} {x} ax≤xb = (+-monoʳ-≤ x) (∙-monoˡ-≤ (b *) ax≤xb)
 
   1+aa*b≤a*b : ∀ {a b : A} → (1ₖ + (a ∙ (a *))) ∙ b ≤ (a *) ∙ b
   1+aa*b≤a*b {a} {b} = ∙-monoˡ-≤ b [14]
